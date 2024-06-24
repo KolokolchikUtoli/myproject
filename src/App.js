@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import "./index.scss";
 import Items from "./components/Items";
 import { SiMetrodeparis } from "react-icons/si";
+import Categories from "./components/Categories";
 
 function App() {
   const [items, setItems] = useState([
@@ -104,15 +105,37 @@ function App() {
       price: "59 ",  //цена
     },
   ]);
-  const[orders,setOrders] =useState([]);
-  const addToOrder=(item) =>{
-    setOrders([...orders,item]);
+  const [orders, setOrders] = useState([]);
+  const [currentItems,setCurrentItems]=useState([]);
+
+  useEffect(()=>{
+    setCurrentItems(items);
+  },[items]);
+
+  const chooseCategory=(category)=>{
+    if(category==="all"){
+      setCurrentItems(items);
+    }
+    else{
+      setCurrentItems(items.filter((el)=>el.category===category));
+    }
+  }
+
+  const addToOrder = (item) => {
+    if (!orders.some((el) => el.id === item.id)) {  //добавляется только один товар 
+      setOrders([...orders, item]);
+    }
+  }
+
+  const deleteOrder = (id) => {
+    setOrders(orders.filter((el) => el.id !== id));
   }
 
   return (
     <div className="wrapper">
-      <Header orders={orders}/>
-      <Items allItems={items} onAdd={addToOrder}/>
+      <Header orders={orders} onDelete={deleteOrder} />
+      <Categories chooseCategory={chooseCategory}/>
+      <Items allItems={currentItems} onAdd={addToOrder} />
       <Footer />
     </div>
   );
